@@ -1,0 +1,71 @@
+💗cubic-bezier(0.19,1,0.22,1)
+Ye 4 numbers control karte hain:
+1)speed start
+2)speed middle
+3)speed end
+💥Start speed → middle speed → end speed
+
+🌸transform: translatey(-4px) scale(1.03);
+1)translatey(-4px)=upper ke taraff
+2)translatey(4px) = nicche ki taraff
+3)translatex(-4px) = right ki taraff
+4)translatex(4px) = left ki taraff
+
+💥1)dragenter:Jab user kisi element ko drag karna start karta hai.
+🌸Kyun use karte hain?
+Yahan hum batate hain ki kaunsa data ya element drag ho raha hai.
+🌸Use case:
+List item ko drag karte waqt uski info save karna.
+
+2)dragenter
+💗Kab chalta hai?
+Jab dragged item kisi drop area ke upar enter karta hai.
+💗Kyun use karte hain?
+Drop area ko highlight karne ke liye.
+
+3)drop
+🌸Kab chalta hai?
+Jab user item ko drop karta hai.
+🌸Kyun use karte hain?
+Final action yahin hota hai — data receive karna, file upload karna, item move karna, etc.
+
+4)dragover
+🌸Jab dragged item drop area ke upar move kar raha hota hai.
+🌸mportant:
+Drop ko allow karne ke liye event.preventDefault() zaroori hota hai.
+
+5)dragleave
+💗Kab chalta hai?
+Jab dragged item drop area se bahar nikal jata hai.
+💗Kyun use karte hain?
+Highlight ya styling hataane ke liye.
+
+💥Socho tum file ko upload box me drag kar rahe ho:
+⭕dragstart → element uthaya
+⭕dragenter → kisi column ke upar aaye
+⭕dragover → column ke upar move kar rahe ho
+⭕Box se bahar chale gaye → dragleave
+⭕Box me chhod diya → drop
+
+✅ Minimum Required Events (Basic Move ke liye)
+✔ dragstart
+Batata hai kaunsa element drag ho raha hai.
+
+✔ dragover
+Drop allow karne ke liye zaroori hota hai.
+
+✔ drop
+Yahan actual move hota hai
+
+🔹 dragenter
+Use hota hai jab item drop area ke andar aata hai.
+Example:
+Drop area ko highlight karna.
+💤Box green ho jata hai jab item uspe aata hai.
+
+🔹 dragleave
+Use hota hai jab item drop area se bahar jata hai.
+Example:
+Highlight hatana.
+
+//odin projec
