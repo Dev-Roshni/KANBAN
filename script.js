@@ -1,164 +1,205 @@
-/********************for local storage *************/
-let taskStoreLocal = {}
+const todo = document.querySelector("#todo");
+const progress = document.querySelector("#progress")
+const done = document.querySelector("#done")
+//console.log(todo,progress,done)
+let dragElement = null
 
-let todo = document.querySelector("#todo");
-let progress = document.querySelector("#progress");
-let done = document.querySelector("#done");
-
-let dragelementselect = null;
-
-if(localStorage.getItem("tasks")){
-    const data = JSON.parse(localStorage.getItem("tasks"))
-
-   // console.log(data)
-    for(const col in data){
-       // console.log(col ,data[col])
-       const column = document.querySelector(`#${col}`);
-       data[col].forEach(task =>{
-        const div =document.createElement("div")
-        div.classList.add("task")
-        div.setAttribute("draggable","true");
-
-        div.innerHTML =`  <h2>${task.title}</h2>
-                 <p>${task.desc}</p>
-                 <button class="btn delete-btn">Delete</button>
-                ` 
-                column.append(div)
-               addDeleteFunction(div);
-
-                div.addEventListener("drag",(e)=>{
-                    dragElement = div;
-                })
-       })
-
-    }
-}
-
-let tasks = document.querySelectorAll(".task");
-tasks.forEach(mytask =>{
-    mytask.addEventListener("drag",(event)=>{
-         //console.log("dragging",event)
-         dragelementselect = mytask;
+let task = document.querySelectorAll(".task")
+task.forEach((elem)=>{
+    elem.addEventListener("dragstart",(e)=>{
+        dragElement = elem;
+       //dragElement = storeTask
     })
-
 })
 
-/*
-progress.addEventListener("dragenter",(event)=>{
-    // console.log("dragg aa gaya h column mai ",event)
-    progress.classList.add("hover-over")
-})
-progress.addEventListener("dragleave",(event)=>{
-     progress.classList.remove("hover-over")
-})
-*/
-/*same for todo and done but iss tarike se code jayda repeatative baan jayega 
-ek ki chij ko hum baar baar likh rhr honge so that we create function for this */
-
-function dragingeventadd(myevent){
-    myevent.addEventListener("dragenter",(e)=>{
-        e.preventDefault();
-         myevent.classList.add("hover-over");
-    })
-    myevent.addEventListener("dragleave",(e)=>{
-        e.preventDefault();
-        myevent.classList.remove("hover-over");
-
-    })
-    /**********dragover************************************** */
-    /*iske through hum drag kiye hoye task ko dusre column mai drop kar sakte hai 
-    browser kahi pe bhi element ko drop karne ka permission nahi deta h but through dragover
-    hum kahi pe bhi element ko drop kar sakte hai */
+function addDragEventOnColumn(column){
     
-    myevent.addEventListener("dragover",(e)=>{
-         e.preventDefault()
+column.addEventListener("dragenter",(e)=>{
+    column.classList.add("hover-over")
+})
 
-    })
+column.addEventListener("dragleave",()=>{
+   column.classList.remove("hover-over")
+})
 
-/***************************************************************** */
-    myevent.addEventListener("drop",(e)=>{
-       e.preventDefault();
-       myevent.appendChild(dragelementselect);
-      myevent.classList.remove("hover-over")
 
-     updateCount()
-    })
+column.addEventListener("dragover",(e)=>{
+      e.preventDefault()
 
+})
+
+column.addEventListener("drop",(e)=>{
+      e.preventDefault()
+      let sourceColumn = dragElement.parentElement;//target initial element
+
+      //console.log("see elements",dragElement,column);
+      column.append(dragElement);
+       updateCount(column);       // new column count
+        updateCount(sourceColumn);
+               // new column count
+          saveTaskInLocalStorage();
+      column.classList.remove("hover-over")
+
+})
 }
-dragingeventadd(todo);
-dragingeventadd(progress);
-dragingeventadd(done);
-
-/********************Updata count*************************************** */
-function updateCount(){
-    [todo,progress,done].forEach(col=>{
-        const tasks = col.querySelectorAll(".task");
-        const count = col.querySelector(".right");
-/******************for local storage************************************* */
-        taskStoreLocal[col.id] = Array.from (tasks).map((t) =>{
-          return {
-            title : t.querySelector("h2").innerHTML,
-            desc : t.querySelector("p").innerHTML
-          }
-        })
-       // console.log(taskStoreLocal)
-       localStorage.setItem("tasks",JSON.stringify(taskStoreLocal))
-/********************************************************** */
-        count.innerHTML = tasks.length;
-    });
-}
-//updateCount()
-
-/*************************************************************************** */
-
-let toggleModel = document.querySelector("#toggle-model")
-let modal = document.querySelector(".modal")
-let modalBg  =document.querySelector(".bg")
+addDragEventOnColumn(todo);
+addDragEventOnColumn(progress);
+addDragEventOnColumn(done)
+/********************************************************************* */
+let toggaleBtn = document.querySelector("#toggle-model");
+let modal = document.querySelector(".modal");
+let bgclass = document.querySelector(".bg")
 let addtaskbtn = document.querySelector(".add-task-btn")
 
-
-toggleModel.addEventListener("click",()=>{
-    modal.classList.toggle("active")
-    console.log(" class add kar diya")
-
+toggaleBtn.addEventListener("click",()=>{
+    modal.classList.toggle("active");
 })
- modalBg.addEventListener("click",()=>{
-    modal.classList.remove("active");
- })
+bgclass.addEventListener("click",()=>{
+    modal.classList.remove("active")
+})
 
- addtaskbtn.addEventListener("click",()=>{
-     let mytaskinput = document.querySelector("#task-title-input").value;
-     let mytextArea = document.querySelector("#task-dec-input").value;
-     console.log(mytaskinput,mytextArea)
+addtaskbtn.addEventListener("click",()=>{
+    let titleInput = document.querySelector("#task-title-input");
+    let decInput = document.querySelector("#task-dec-input");
+    
 
-    let mynewAddTask =  document.createElement("div");
+     let tasktitleinput = titleInput.value;
+    let taskdecinput = decInput.value;
 
-    mynewAddTask.classList.add("task")
-    mynewAddTask.setAttribute("draggable","true");
-      mynewAddTask.innerHTML = `
-                 <h2>${mytaskinput}</h2>
-                 <p>${mytextArea}</p>
+    let storeTask = document.createElement("div")
+       storeTask.className = "task";
+    storeTask.draggable = true;
+
+        storeTask.innerHTML = `
+                 <h2>${tasktitleinput}</h2>
+                 <p>${taskdecinput}</p>
                  <button class="btn delete-btn">Delete</button>
-                ` 
-               mynewAddTask.addEventListener("dragstart",()=>{
-                     dragelementselect = mynewAddTask;
-                     });             
-                todo.append(mynewAddTask)
+`;
 
-                addDeleteFunction(mynewAddTask);
-
-
-                updateCount()
-
-                modal.classList.remove("active")
- 
+/***************************************************************************** */
+ let myDeleteBtn= storeTask.querySelector(".delete-btn");
+ myDeleteBtn.addEventListener("click",()=>{
+    let parentColumn = storeTask.parentElement;
+    storeTask.remove()
+    updateCount(parentColumn);
+    saveTaskInLocalStorage()//save task in localstorage
  })
- 
- function addDeleteFunction(taskElement) {
-    const deleteBtn = taskElement.querySelector(".delete-btn");
 
-    deleteBtn.addEventListener("click", () => {
-        taskElement.remove();
-        updateCount();
+/************************************************************************** */
+
+// drag logic
+    storeTask.addEventListener("dragstart", ()=>{
+        dragElement = storeTask;
     });
+
+    // append immediately
+    todo.append(storeTask);
+    updateCount(todo); //update count
+    saveTaskInLocalStorage();
+
+
+    modal.classList.remove("active");
+       
+     // clear inputs
+    titleInput.value = "";
+    decInput.value = "";
+
+    titleInput.focus()
+})
+/*************functionality for Update count************************************************** */
+function updateCount(column){
+    let count = column.querySelector(".right")
+    let countNo = column.querySelectorAll(".task").length
+  // count = countNo;
+  if(countNo === 0){
+    count.innerHTML = "count"
+  }
+  else{
+    count.innerHTML = countNo
+  }
+ 
+
 }
+updateCount(todo)
+updateCount(progress)
+updateCount(done)
+
+//save task in LocalStorage
+function saveTaskInLocalStorage(){
+     const columns = document.querySelectorAll(".task-column");
+    let data = {};//create object
+    columns.forEach(mycolumnEle =>{
+        const tasks = mycolumnEle.querySelectorAll(".task");
+        data[mycolumnEle.id] =[];
+        tasks.forEach(task =>{
+            data[mycolumnEle.id].push({
+                tittle:task.querySelector("h2").innerText,
+                desc:task.querySelector("p").innerText
+            });
+        })
+    })
+    localStorage.setItem("kanbanData",JSON.stringify(data))
+
+}
+
+//load task from local storage 
+//Storage se tasks wapas screen par lana.
+function loadTasksFromLocalStorage(){
+
+      let savedData = localStorage.getItem("kanbanData");
+
+    // agar data hi nahi hai to function band
+    if(savedData === null) return;
+
+    let data = JSON.parse(savedData);
+
+    loadTasksInColumn(todo, data.todo);
+    loadTasksInColumn(progress, data.progress);
+    loadTasksInColumn(done, data.done);
+}
+loadTasksFromLocalStorage()
+//Task div dobara banana.
+function loadTasksInColumn(column, tasks){
+
+    if(!tasks) return;
+
+    tasks.forEach(taskData => {
+
+        let task = document.createElement("div");
+        task.className = "task";
+        task.draggable = true;
+
+        task.innerHTML = `
+            <h2>${taskData.tittle}</h2>
+            <p>${taskData.desc}</p>
+            <button class="btn delete-btn">Delete</button>
+        `;
+
+        // delete button
+        task.querySelector(".delete-btn").addEventListener("click", ()=>{
+            let parentColumn = task.parentElement;
+            task.remove();
+            updateCount(parentColumn);
+            
+        });
+
+        // drag
+        task.addEventListener("dragstart", ()=>{
+            dragElement = task;
+        });
+
+        column.append(task);
+    });
+
+    updateCount(column);
+}
+
+/*Reload ke baad
+HTML empty
+↓
+JS se new task create
+↓
+event listeners missing
+↓
+isliye dobara add karte hain
+*/
